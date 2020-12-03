@@ -14,13 +14,14 @@ else
 	echo "File $Target will be created"
 fi
 
-
 echo "# Hombrews $MyHostname" > "$Target"
+echo "$IFS"'[TOC]' >> "$Target"
 
 list_brews ()
 {
 	printf '> firt: check for brew list --formula...%s' "$IFS"
-	ListBrews="$(brew list --formula)"
+	#ListBrews="$(brew list --formula)"
+	ListBrews="$(brew leaves)"
 	printf '> second: check for brew list --cask...%s' "$IFS"
 	ListCasks="$(brew list --cask)"
 }
@@ -43,8 +44,9 @@ getMeta ()
 	local FormulaType
 	Formulae=$1
 	FormulaType=$2
-	echo "$IFS## ""$FormulaType" >> "$Target"
-	printf '> now, find descriptions of %s' "$FormulaType"
+  FormulaName=$3
+	echo "$IFS## ""$FormulaName" >> "$Target"
+	printf '> now, find descriptions of %s' "$FormulaName"
 	for Formula in $Formulae
 	do 
 		printf "."
@@ -75,8 +77,8 @@ getAllMeta ()
 {
 	printf 'Wait...%s' "$IFS"
 	list_brews
-	getMeta "${ListBrews[@]}" formula
-	getMeta "${ListCasks[@]}" cask
+	getMeta "${ListBrews[@]}" formula Formulae
+	getMeta "${ListCasks[@]}" cask Casks
 	echo 'Done!!!'
 }
 
