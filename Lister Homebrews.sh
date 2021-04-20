@@ -14,7 +14,7 @@ else
 	echo "File $Target will be created"
 fi
 
-echo "# Hombrews $MyHostname" > "$Target"
+echo "# Homebrews $MyHostname" > "$Target"
 echo "$IFS"'[TOC]' >> "$Target"
 
 list_brews ()
