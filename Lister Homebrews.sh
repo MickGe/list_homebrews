@@ -1,21 +1,45 @@
 #!/bin/bash
+#
+# Lister Homebrews.sh
+#
+# (c) Mickaël 2020 <https://mstdn.fr/@mickge>
+#
+# List homebrews on the machine with description, version and homepage
+
+# Check brew is installed
+command -v brew >/dev/null 2>&1 || { echo >&2 "Brew est nécessaire, le script est annulé."; exit 1; }
 
 OLDIFS=$IFS
 IFS=$'\r\n'
 
 Target="$HOME/brews.md"
-MyHostname=$(hostname)
+MyHostname="$(hostname -s)"
 
-if test -f "$Target"; then
-	rm "$Target"
-	echo "File $Target is deleted"
-	echo "It will be created with new values"
-else
-	echo "File $Target will be created"
-fi
+usage () {
+	# Display help message
+	echo "    Usage: ${0} [OPTION]"
+	echo
+	echo "Options:"
+	echo "   --toc -t	Show the table of content at the begining of the .md files."
+	echo "   --help -h	Show this help message."
+}
 
-echo "# Homebrews $MyHostname" > "$Target"
-echo "$IFS"'[TOC]' >> "$Target"
+prep_target ()
+{
+	if test -f "$Target"; then
+		rm "$Target"
+		echo "File $Target is deleted"
+		echo "It will be created with new values"
+	else
+		echo "File $Target will be created"
+	fi
+
+	echo "# Homebrews $MyHostname" > "$Target"
+	if [[ "${TOC}" = true ]]; then
+		echo "$IFS"'[TOC]' >> "$Target"
+	fi
+}
+
 
 list_brews ()
 {
@@ -75,6 +99,7 @@ getMeta ()
 
 getAllMeta ()
 {
+	prep_target
 	printf 'Wait...%s' "$IFS"
 	list_brews
 	getMeta "${ListBrews[@]}" formula Formulae
@@ -82,10 +107,24 @@ getAllMeta ()
 	echo 'Done!!!'
 }
 
+OPTION="${1}"
+case "${OPTION}" in
+	--toc | -t)
+		TOC=true
+		;;
+	--help | -h)
+		usage
+		exit 0
+		;;
+	?*)
+		usage
+		exit 1
+esac
+
 getAllMeta
 
 IFS=$OLDIFS
 
 open "$Target"
 
-exit
+exit 0
